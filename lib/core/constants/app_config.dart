@@ -9,7 +9,7 @@ class AppConfig {
   static bool get useMockData => kIsWeb;
   
   // App Info
-  static const String appVersion = '3.3.1';
+  static const String appVersion = '3.3.2';
   static const String buildNumber = '1';
   
   // Supported Languages

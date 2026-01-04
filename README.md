@@ -416,7 +416,7 @@ await service.syncAllTransactions();
 - [x] **Simplified Config** - Auto Firebase detection
 - [x] **APK Size Optimization** - 97MB → 34.8MB (64% reduction)
 
-### ✅ v3.1 (Current)
+### ✅ v3.1
 
 - [x] **Cloud Backup & Restore** - Firebase Storage integration
   - Automatic GZip compression
@@ -430,17 +430,31 @@ await service.syncAllTransactions();
   - Drag-and-drop reordering
 - [x] **Database v3** - Enhanced schema with migrations
 - [x] **minSdk 26** - Android 8.0+ support
-- [ ] **Two-Way Sheets Sync** - Import from Google Sheets (in progress)
-- [ ] **iOS Widgets** - WidgetKit integration (planned)
-- [ ] **AI Receipt Categorization** - TensorFlow Lite ML model (60% complete)
 
-### 🔜 v3.2 (Planned)
+### ✅ v3.2
 
 - [x] Recurring transactions
 - [x] Multi-currency support
 - [x] Split transactions
 - [x] Bill reminders
 - [x] Dark theme enhancements (AMOLED Black mode)
+
+### ✅ v3.3 (Current)
+
+- [x] **Firebase Packages Upgrade** - All packages updated to latest versions
+  - firebase_core ^4.3.0, firebase_auth ^6.1.3
+  - cloud_firestore ^6.1.1, firebase_storage ^13.0.5
+- [x] **iOS Deployment Target** - Updated to iOS 15.0+
+- [x] **Dependency Updates** - printing ^5.14.2, open_file ^3.5.10
+- [x] **Split APK Workflow** - Enhanced GitHub Actions for architecture-specific APKs
+
+### 🔜 v3.4 (Planned)
+
+- [ ] **iOS Widgets** - WidgetKit integration
+- [ ] **Two-Way Sheets Sync** - Import from Google Sheets
+- [ ] **AI Receipt Categorization** - TensorFlow Lite ML model
+- [ ] **Investment Tracker** - Track investments & portfolios
+- [ ] **Financial Goals** - Set and track savings goals
 
 ---
 
