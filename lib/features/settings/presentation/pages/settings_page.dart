@@ -9,6 +9,7 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../sync/presentation/providers/sync_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../providers/export_providers.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -124,13 +125,7 @@ class SettingsPage extends ConsumerWidget {
               icon: Icons.download_outlined,
               title: 'Export Data',
               subtitle: 'Export ke CSV/Excel',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Export akan tersedia di versi 2.0'),
-                  ),
-                );
-              },
+              onTap: () => _showExportDialog(context, ref),
             ),
             const Gap(24),
 
@@ -726,5 +721,258 @@ class SettingsPage extends ConsumerWidget {
       case ThemeMode.system:
         return 'Mengikuti pengaturan sistem';
     }
+  }
+  
+  void _showExportDialog(BuildContext context, WidgetRef ref) {
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : AppColors.cardBackground;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final exportState = ref.watch(exportNotifierProvider);
+          final exportNotifier = ref.read(exportNotifierProvider.notifier);
+          
+          return Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const Gap(16),
+                Text(
+                  'Export Data',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Gap(8),
+                Text(
+                  'Pilih format export data transaksi Anda',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                  ),
+                ),
+                const Gap(20),
+                
+                // Export options
+                _buildExportOption(
+                  context,
+                  icon: Icons.table_chart_outlined,
+                  title: 'Export ke CSV',
+                  subtitle: 'Format spreadsheet untuk Excel/Google Sheets',
+                  isLoading: exportState.isLoading,
+                  cardColor: cardColor,
+                  onTap: () async {
+                    await exportNotifier.exportToCSV();
+                    if (context.mounted) {
+                      final state = ref.read(exportNotifierProvider);
+                      if (state.filePath != null) {
+                        Navigator.pop(context);
+                        _showExportSuccessDialog(context, ref, state.filePath!);
+                      } else if (state.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.error!)),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const Gap(12),
+                _buildExportOption(
+                  context,
+                  icon: Icons.summarize_outlined,
+                  title: 'Export Laporan',
+                  subtitle: 'Ringkasan keuangan dalam format teks',
+                  isLoading: exportState.isLoading,
+                  cardColor: cardColor,
+                  onTap: () async {
+                    await exportNotifier.exportSummary();
+                    if (context.mounted) {
+                      final state = ref.read(exportNotifierProvider);
+                      if (state.filePath != null) {
+                        Navigator.pop(context);
+                        _showExportSuccessDialog(context, ref, state.filePath!);
+                      } else if (state.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.error!)),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const Gap(20),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
+  Widget _buildExportOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool isLoading,
+    required Color cardColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: isLoading ? null : onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(icon, color: AppColors.primary),
+            ),
+            const Gap(16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Gap(4),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  void _showExportSuccessDialog(BuildContext context, WidgetRef ref, String filePath) {
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.income.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.check_circle, color: AppColors.income),
+            ),
+            const Gap(12),
+            const Expanded(
+              child: Text('Export Berhasil'),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'File telah disimpan di:',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const Gap(8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                filePath,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(exportNotifierProvider.notifier).shareFile();
+            },
+            icon: const Icon(Icons.share, size: 18),
+            label: const Text('Bagikan'),
+          ),
+        ],
+      ),
+    );
   }
 }

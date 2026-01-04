@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/transactions/presentation/pages/add_transaction_page.dart';
 import '../../features/transactions/presentation/pages/transaction_detail_page.dart';
+import '../../features/transactions/presentation/pages/transactions_list_page.dart';
+import '../../features/transactions/presentation/pages/transaction_search_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/analytics/presentation/pages/mood_analytics_page.dart';
 import '../../features/budget/presentation/pages/budget_page.dart';
@@ -153,6 +156,23 @@ class AppRouter {
         path: '/bills',
         name: 'bills',
         builder: (context, state) => const BillsPage(),
+      ),
+      // Transactions routes
+      GoRoute(
+        path: '/transactions',
+        name: 'transactions-list',
+        builder: (context, state) => const TransactionsListPage(),
+      ),
+      GoRoute(
+        path: '/transactions/search',
+        name: 'transactions-search',
+        builder: (context, state) => const TransactionSearchPage(),
+      ),
+      // Notifications
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsPage(),
       ),
     ];
 }

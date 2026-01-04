@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/theme/theme_provider.dart';
 
 import '../../../../main.dart' show firebaseInitialized;
 import '../providers/auth_providers.dart';
@@ -20,6 +21,31 @@ class LoginPage extends ConsumerWidget {
     final isOfflineMode = kIsWeb || !firebaseInitialized;
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
+    
+    // Theme support
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
     
     // Listen for auth success
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
@@ -39,6 +65,7 @@ class LoginPage extends ConsumerWidget {
     });
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -71,7 +98,7 @@ class LoginPage extends ConsumerWidget {
                                 end: Alignment.bottomRight,
                               ),
                               borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
+                              boxShadow: isDark ? null : [
                                 BoxShadow(
                                   color: AppColors.primary.withValues(alpha: 0.4),
                                   blurRadius: 20,
@@ -101,7 +128,7 @@ class LoginPage extends ConsumerWidget {
                           Text(
                             'Kelola Keuangan dengan Cerdas',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                               fontSize: isSmallScreen ? 14 : 16,
                             ),
                           ),
@@ -119,6 +146,10 @@ class LoginPage extends ConsumerWidget {
                               'Mood Analytics',
                               'Pahami pola pengeluaran berdasarkan suasana hati',
                               isSmallScreen,
+                              cardColor: cardColor,
+                              borderColor: borderColor,
+                              textSecondary: textSecondary,
+                              isDark: isDark,
                             ),
                             const Gap(16),
                             _buildFeatureItem(
@@ -127,6 +158,10 @@ class LoginPage extends ConsumerWidget {
                               'Smart Sync',
                               'Backup otomatis ke Google Sheets',
                               isSmallScreen,
+                              cardColor: cardColor,
+                              borderColor: borderColor,
+                              textSecondary: textSecondary,
+                              isDark: isDark,
                             ),
                             const Gap(16),
                             _buildFeatureItem(
@@ -135,6 +170,10 @@ class LoginPage extends ConsumerWidget {
                               'Scan Struk',
                               'Input transaksi cepat dengan OCR',
                               isSmallScreen,
+                              cardColor: cardColor,
+                              borderColor: borderColor,
+                              textSecondary: textSecondary,
+                              isDark: isDark,
                             ),
                           ],
                         ),
@@ -152,20 +191,20 @@ class LoginPage extends ConsumerWidget {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
+                                color: isDark ? Colors.orange.shade900.withValues(alpha: 0.3) : Colors.orange.shade50,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.orange.shade200),
+                                border: Border.all(color: isDark ? Colors.orange.shade700 : Colors.orange.shade200),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+                                  Icon(Icons.info_outline, color: isDark ? Colors.orange.shade300 : Colors.orange.shade700, size: 20),
                                   const Gap(12),
                                   Expanded(
                                     child: Text(
                                       'Demo Mode: Login tidak tersedia di web. Test di mobile atau lewati untuk preview UI.',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.orange.shade900,
+                                        color: isDark ? Colors.orange.shade200 : Colors.orange.shade900,
                                       ),
                                     ),
                                   ),
@@ -278,7 +317,7 @@ class LoginPage extends ConsumerWidget {
                               'Dengan masuk, Anda menyetujui Syarat & Ketentuan dan Kebijakan Privasi',
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
+                                color: textSecondary,
                                 fontSize: 11,
                                 height: 1.4,
                               ),
@@ -303,14 +342,18 @@ class LoginPage extends ConsumerWidget {
     IconData icon,
     String title,
     String description,
-    bool isSmallScreen,
-  ) {
+    bool isSmallScreen, {
+    required Color cardColor,
+    required Color borderColor,
+    required Color textSecondary,
+    required bool isDark,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -344,7 +387,7 @@ class LoginPage extends ConsumerWidget {
                 Text(
                   description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: textSecondary,
                     height: 1.3,
                   ),
                 ),

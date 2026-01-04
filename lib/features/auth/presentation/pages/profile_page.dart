@@ -222,7 +222,7 @@ class ProfilePage extends ConsumerWidget {
             cardColor,
             textSecondary,
           ),
-          const Gap(10),
+          const Gap(14),
           _buildMenuItem(
             context,
             Icons.notifications,
@@ -232,7 +232,7 @@ class ProfilePage extends ConsumerWidget {
             cardColor,
             textSecondary,
           ),
-          const Gap(10),
+          const Gap(14),
           _buildMenuItem(
             context,
             Icons.security,
@@ -242,7 +242,7 @@ class ProfilePage extends ConsumerWidget {
             cardColor,
             textSecondary,
           ),
-          const Gap(10),
+          const Gap(14),
           _buildMenuItem(
             context,
             Icons.help,
@@ -252,7 +252,7 @@ class ProfilePage extends ConsumerWidget {
             cardColor,
             textSecondary,
           ),
-          const Gap(10),
+          const Gap(14),
           _buildMenuItem(
             context,
             Icons.info,

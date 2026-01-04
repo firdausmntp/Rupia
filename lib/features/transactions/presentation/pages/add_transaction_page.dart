@@ -261,7 +261,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
           'Jumlah',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const Gap(10),
+        const Gap(14),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
@@ -475,7 +475,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
           'Tanggal',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const Gap(10),
+        const Gap(14),
         Material(
           color: Colors.transparent,
           child: InkWell(
@@ -809,7 +809,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
             ),
           ],
         ),
-        const Gap(10),
+        const Gap(14),
         TextFormField(
           controller: _noteController,
           maxLines: 3,

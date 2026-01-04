@@ -77,7 +77,7 @@ class HomePage extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // TODO: Implement search
+              context.push('/transactions/search');
             },
             icon: Container(
               padding: const EdgeInsets.all(8),
@@ -96,7 +96,7 @@ class HomePage extends ConsumerWidget {
           ),
           IconButton(
             onPressed: () {
-              // TODO: Implement notifications
+              context.push('/notifications');
             },
             icon: Container(
               padding: const EdgeInsets.all(8),
@@ -315,7 +315,7 @@ class HomePage extends ConsumerWidget {
                   ),
                   TextButton.icon(
                     onPressed: () {
-                      // TODO: Navigate to all transactions
+                      context.push('/transactions');
                     },
                     icon: const Icon(Icons.arrow_forward, size: 18),
                     label: const Text('Lihat Semua'),
@@ -325,7 +325,7 @@ class HomePage extends ConsumerWidget {
                   ),
                 ],
               ),
-              const Gap(12),
+              const Gap(14),
               
               // Transaction List
               transactionsAsync.when(
@@ -350,7 +350,7 @@ class HomePage extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: recentTransactions.length,
-                    separatorBuilder: (context, index) => const Gap(10),
+                    separatorBuilder: (context, index) => const Gap(14),
                     itemBuilder: (context, index) {
                       final transaction = recentTransactions[index];
                       return TransactionListItem(

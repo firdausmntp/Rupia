@@ -33,8 +33,8 @@ class AuthService {
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive.file',
           ],
-          // Add serverClientId for better Android support
-          // This should match the Web Client ID from Firebase Console
+          // Web Client ID from Firebase Console - required for Android release builds
+          serverClientId: '943368254932-vdvpkpmmm9dq441i1sc2jk8p4mbc35ki.apps.googleusercontent.com',
         );
         _firestore = FirebaseFirestore.instance;
         debugPrint('✅ AuthService initialized with Firebase');

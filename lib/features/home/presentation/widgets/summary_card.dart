@@ -73,7 +73,7 @@ class SummaryCard extends ConsumerWidget {
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
-              const Gap(10),
+              const Gap(14),
               Expanded(
                 child: Text(
                   title,

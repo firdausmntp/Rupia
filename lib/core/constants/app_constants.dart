@@ -1,7 +1,7 @@
 // App Constants
 class AppConstants {
   static const String appName = 'Rupia';
-  static const String appVersion = '3.3.1';
+  static const String appVersion = '3.4.0';
   
   // Database
   static const String dbName = 'rupia_database';
