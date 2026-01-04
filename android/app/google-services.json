@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "943368254932",
+    "project_id": "rupia-2544a",
+    "storage_bucket": "rupia-2544a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943368254932:android:79cc47bc3ef3c7d5715241",
+        "android_client_info": {
+          "package_name": "com.firdausmntp.rupia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "943368254932-htjad1fe02i79udd916eh17l595ngg0g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.firdausmntp.rupia",
+            "certificate_hash": "89d3d95227fad877f86ae11922adcd277932dce4"
+          }
+        },
+        {
+          "client_id": "943368254932-vdvpkpmmm9dq441i1sc2jk8p4mbc35ki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB632IW5BvZ1UoxyqyVh34o0pI5RBv_7C8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "943368254932-vdvpkpmmm9dq441i1sc2jk8p4mbc35ki.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
