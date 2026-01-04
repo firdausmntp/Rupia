@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../providers/auth_providers.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -14,10 +15,21 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
     final userAsync = ref.watch(currentUserProvider);
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Profil'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -30,15 +42,21 @@ class ProfilePage extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (user) {
           if (user == null) {
-            return _buildNotLoggedIn(context);
+            return _buildNotLoggedIn(context, isDark, isAmoled);
           }
-          return _buildProfile(context, ref, user, authState);
+          return _buildProfile(context, ref, user, authState, isDark, isAmoled);
         },
       ),
     );
   }
 
-  Widget _buildNotLoggedIn(BuildContext context) {
+  Widget _buildNotLoggedIn(BuildContext context, bool isDark, bool isAmoled) {
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -46,10 +64,13 @@ class ProfilePage extends ConsumerWidget {
           Icon(
             Icons.account_circle,
             size: 80,
-            color: Colors.grey.shade400,
+            color: textSecondary,
           ),
           const Gap(16),
-          const Text('Belum masuk'),
+          Text(
+            'Belum masuk',
+            style: TextStyle(color: textSecondary),
+          ),
           const Gap(24),
           ElevatedButton(
             onPressed: () => context.go('/login'),
@@ -65,7 +86,35 @@ class ProfilePage extends ConsumerWidget {
     WidgetRef ref, 
     dynamic user,
     AuthState authState,
+    bool isDark,
+    bool isAmoled,
   ) {
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final statCardColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : Colors.grey.shade100;
+    final dangerZoneBg = isAmoled 
+        ? Colors.red.shade900.withValues(alpha: 0.3)
+        : isDark 
+            ? Colors.red.shade900.withValues(alpha: 0.3)
+            : Colors.red.shade50;
+    final dangerZoneBorder = isAmoled 
+        ? Colors.red.shade800
+        : isDark 
+            ? Colors.red.shade800
+            : Colors.red.shade200;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -99,7 +148,7 @@ class ProfilePage extends ConsumerWidget {
                 Text(
                   user.email,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: textSecondary,
                   ),
                 ),
                 const Gap(16),
@@ -109,13 +158,21 @@ class ProfilePage extends ConsumerWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: user.isPremium ? Colors.amber : Colors.grey.shade200,
+                    color: user.isPremium 
+                        ? Colors.amber 
+                        : isDark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     user.isPremium ? '⭐ Premium' : 'Free Plan',
                     style: TextStyle(
-                      color: user.isPremium ? Colors.white : Colors.grey.shade700,
+                      color: user.isPremium 
+                          ? Colors.white 
+                          : isDark 
+                              ? Colors.grey.shade300 
+                              : Colors.grey.shade700,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -135,15 +192,19 @@ class ProfilePage extends ConsumerWidget {
                   'Bergabung',
                   _formatDate(user.createdAt),
                   Icons.calendar_today,
+                  statCardColor,
+                  textSecondary,
                 ),
               ),
-              const Gap(16),
+              const Gap(12),
               Expanded(
                 child: _buildStatCard(
                   context,
                   'Login Terakhir',
                   _formatDate(user.lastLoginAt ?? user.createdAt),
                   Icons.access_time,
+                  statCardColor,
+                  textSecondary,
                 ),
               ),
             ],
@@ -158,34 +219,48 @@ class ProfilePage extends ConsumerWidget {
             'Edit Profil',
             'Ubah nama dan foto',
             () {},
+            cardColor,
+            textSecondary,
           ),
+          const Gap(10),
           _buildMenuItem(
             context,
             Icons.notifications,
             'Notifikasi',
             'Atur preferensi notifikasi',
             () {},
+            cardColor,
+            textSecondary,
           ),
+          const Gap(10),
           _buildMenuItem(
             context,
             Icons.security,
             'Keamanan',
             'Kelola keamanan akun',
             () {},
+            cardColor,
+            textSecondary,
           ),
+          const Gap(10),
           _buildMenuItem(
             context,
             Icons.help,
             'Bantuan',
             'FAQ dan dukungan',
             () {},
+            cardColor,
+            textSecondary,
           ),
+          const Gap(10),
           _buildMenuItem(
             context,
             Icons.info,
             'Tentang Aplikasi',
             'Versi dan lisensi',
             () => _showAboutDialog(context),
+            cardColor,
+            textSecondary,
           ),
           
           const Gap(32),
@@ -194,9 +269,9 @@ class ProfilePage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
+              color: dangerZoneBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: dangerZoneBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +279,7 @@ class ProfilePage extends ConsumerWidget {
                 Text(
                   'Zona Berbahaya',
                   style: TextStyle(
-                    color: Colors.red.shade700,
+                    color: Colors.red.shade400,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -233,11 +308,13 @@ class ProfilePage extends ConsumerWidget {
     String label,
     String value,
     IconData icon,
+    Color cardColor,
+    Color textSecondary,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -247,7 +324,7 @@ class ProfilePage extends ConsumerWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: textSecondary,
             ),
           ),
           const Gap(4),
@@ -268,23 +345,29 @@ class ProfilePage extends ConsumerWidget {
     String title,
     String subtitle,
     VoidCallback onTap,
+    Color cardColor,
+    Color textSecondary,
   ) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+    return Card(
+      color: cardColor,
+      elevation: 0,
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.primary),
         ),
-        child: Icon(icon, color: AppColors.primary),
+        title: Text(title),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(color: textSecondary),
+        ),
+        trailing: Icon(Icons.chevron_right, color: textSecondary),
+        onTap: onTap,
       ),
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: AppColors.textSecondary),
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
     );
   }
 

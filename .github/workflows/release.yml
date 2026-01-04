@@ -6,8 +6,8 @@ on:
       - 'v*'
 
 env:
-  FLUTTER_VERSION: '3.27.1'
-  JAVA_VERSION: '11'
+  FLUTTER_VERSION: '3.32.2'
+  JAVA_VERSION: '17'
 
 jobs:
   build-android:
@@ -31,6 +31,21 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
+
+      # Extract version from git tag (e.g., v3.3.1 -> 3.3.1)
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
+          if [ -z "$BUILD_NUMBER" ]; then
+            BUILD_NUMBER=${{ github.run_number }}
+          fi
+          BUILD_NAME=$(echo $VERSION | cut -d'+' -f1)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_name=$BUILD_NAME" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Building version: $BUILD_NAME+$BUILD_NUMBER"
 
       # Setup Firebase google-services.json
       - name: Setup google-services.json
@@ -95,27 +110,51 @@ jobs:
           echo "keyAlias=$KEY_ALIAS" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
 
-      # Build APK
-      - name: Build APK
-        run: flutter build apk --release
+      # Build APK (split per ABI for smaller size)
+      - name: Build APK (Split per ABI)
+        run: flutter build apk --release --split-per-abi --build-name=${{ steps.get_version.outputs.build_name }} --build-number=${{ steps.get_version.outputs.build_number }}
 
       # Build App Bundle
       - name: Build App Bundle
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --build-name=${{ steps.get_version.outputs.build_name }} --build-number=${{ steps.get_version.outputs.build_number }}
 
-      - name: Rename APK
+      # Verify generated APKs
+      - name: List generated APK files
         run: |
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}.apk
+          echo "Generated APK files:"
+          ls -lh build/app/outputs/flutter-apk/
+          echo ""
+          echo "APK sizes:"
+          du -h build/app/outputs/flutter-apk/*.apk
+
+      - name: Rename APKs
+        run: |
+          # Rename split APKs with version tag
+          if [ -f "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk" ]; then
+            mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}-armeabi-v7a.apk
+            echo "✓ Renamed ARMv7 APK"
+          fi
+          
+          if [ -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}-arm64-v8a.apk
+            echo "✓ Renamed ARM64 APK"
+          fi
+          
+          if [ -f "build/app/outputs/flutter-apk/app-x86_64-release.apk" ]; then
+            mv build/app/outputs/flutter-apk/app-x86_64-release.apk build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}-x86_64.apk
+            echo "✓ Renamed x86_64 APK"
+          fi
 
       - name: Rename AAB
         run: |
           mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/rupia-${{ github.ref_name }}.aab
+          echo "✓ Renamed AAB file"
 
-      - name: Upload APK Artifact
+      - name: Upload APK Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}.apk
+          path: build/app/outputs/flutter-apk/rupia-${{ github.ref_name }}-*.apk
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
@@ -139,8 +178,22 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      # Extract version from git tag
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
+          if [ -z "$BUILD_NUMBER" ]; then
+            BUILD_NUMBER=${{ github.run_number }}
+          fi
+          BUILD_NAME=$(echo $VERSION | cut -d'+' -f1)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_name=$BUILD_NAME" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+
       - name: Build Web
-        run: flutter build web --release --base-href "/rupia/"
+        run: flutter build web --release --base-href "/rupia/" --build-name=${{ steps.get_version.outputs.build_name }} --build-number=${{ steps.get_version.outputs.build_number }}
 
       - name: Create Web Archive
         run: |
@@ -164,11 +217,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download APK
+      - name: Download APKs
         uses: actions/download-artifact@v4
         with:
           name: release-apk
-          path: ./artifacts
+          path: ./artifacts/apk
 
       - name: Download AAB
         uses: actions/download-artifact@v4
@@ -192,14 +245,37 @@ jobs:
           echo "## 🚀 What's New in ${{ github.ref_name }}" > RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
           echo "### 📱 Downloads" >> RELEASE_NOTES.md
-          echo "- **APK**: Download and install directly on Android devices" >> RELEASE_NOTES.md
-          echo "- **AAB**: For Google Play Store upload" >> RELEASE_NOTES.md
-          echo "- **Web**: Deploy to any static hosting" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          echo "### 📋 Installation" >> RELEASE_NOTES.md
-          echo "1. Download the APK file below" >> RELEASE_NOTES.md
-          echo "2. Enable 'Install from unknown sources' on your Android device" >> RELEASE_NOTES.md
-          echo "3. Open the APK file to install" >> RELEASE_NOTES.md
+          echo "#### Android APK (Split per ABI - Recommended)" >> RELEASE_NOTES.md
+          echo "Setiap APK sudah dioptimasi untuk arsitektur spesifik (ukuran lebih kecil):" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "- **rupia-${{ github.ref_name }}-arm64-v8a.apk** (ARM64)" >> RELEASE_NOTES.md
+          echo "  - Untuk smartphone Android modern 64-bit (2017+)" >> RELEASE_NOTES.md
+          echo "  - **✅ Recommended untuk kebanyakan device**" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "- **rupia-${{ github.ref_name }}-armeabi-v7a.apk** (ARMv7)" >> RELEASE_NOTES.md
+          echo "  - Untuk smartphone Android lama 32-bit (sebelum 2017)" >> RELEASE_NOTES.md
+          echo "  - Device lawas seperti Samsung J Series, ASUS Zenfone lama" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "- **rupia-${{ github.ref_name }}-x86_64.apk** (x86_64)" >> RELEASE_NOTES.md
+          echo "  - Untuk emulator Android / tablet Intel / Chromebook" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "#### Other Files" >> RELEASE_NOTES.md
+          echo "- **rupia-${{ github.ref_name }}.aab** - Android App Bundle untuk Google Play Store" >> RELEASE_NOTES.md
+          echo "- **rupia-web-${{ github.ref_name }}.zip** - Web build untuk hosting statis" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### 📋 Cara Install" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "**Untuk smartphone modern (2017+):**" >> RELEASE_NOTES.md
+          echo "1. Download **arm64-v8a.apk** ⬆️" >> RELEASE_NOTES.md
+          echo "2. Aktifkan 'Install from unknown sources' di Settings" >> RELEASE_NOTES.md
+          echo "3. Buka file APK yang sudah didownload" >> RELEASE_NOTES.md
+          echo "4. Tap Install" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "**Tidak yakin arsitektur device kamu?**" >> RELEASE_NOTES.md
+          echo "- Cek di Settings > About Phone > Processor" >> RELEASE_NOTES.md
+          echo "- Atau download app 'CPU-Z' dari Play Store" >> RELEASE_NOTES.md
+          echo "- Kalau bingung, coba **arm64-v8a** dulu (paling umum)" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
           echo "---" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
@@ -213,8 +289,8 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
           files: |
-            ./artifacts/rupia-${{ github.ref_name }}.apk
-            ./artifacts/rupia-${{ github.ref_name }}.aab
-            ./artifacts/rupia-web-${{ github.ref_name }}.zip
+            ./artifacts/apk/*.apk
+            ./artifacts/*.aab
+            ./artifacts/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

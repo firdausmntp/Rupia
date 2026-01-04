@@ -212,6 +212,10 @@ class TransactionDetailPage extends ConsumerWidget {
               
               if (context.mounted) {
                 if (success) {
+                  // Invalidate providers to trigger immediate refresh
+                  ref.invalidate(currentMonthTransactionsProvider);
+                  ref.invalidate(dashboardSummaryProvider);
+                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Transaksi berhasil dihapus'),

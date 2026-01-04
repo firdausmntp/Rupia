@@ -17,6 +17,13 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final syncState = ref.watch(syncProvider);
     final authState = ref.watch(authStateProvider);
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,7 +35,7 @@ class SettingsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Section
-            _buildSectionTitle(context, 'Akun'),
+            _buildSectionTitle(context, 'Akun', textSecondary),
             const Gap(8),
             authState.when(
               data: (user) => _buildSettingItem(
@@ -62,7 +69,7 @@ class SettingsPage extends ConsumerWidget {
             const Gap(24),
 
             // Quick Features Section
-            _buildSectionTitle(context, 'Fitur'),
+            _buildSectionTitle(context, 'Fitur', textSecondary),
             const Gap(8),
             _buildSettingItem(
               context,
@@ -95,13 +102,13 @@ class SettingsPage extends ConsumerWidget {
             const Gap(24),
 
             // Sync Section
-            _buildSectionTitle(context, 'Sinkronisasi'),
+            _buildSectionTitle(context, 'Sinkronisasi', textSecondary),
             const Gap(8),
             _buildSyncCard(context, ref, syncState),
             const Gap(24),
 
             // Data Section
-            _buildSectionTitle(context, 'Data'),
+            _buildSectionTitle(context, 'Data', textSecondary),
             const Gap(8),
             _buildSettingItem(
               context,
@@ -128,13 +135,13 @@ class SettingsPage extends ConsumerWidget {
             const Gap(24),
 
             // Appearance Section
-            _buildSectionTitle(context, 'Tampilan'),
+            _buildSectionTitle(context, 'Tampilan', textSecondary),
             const Gap(8),
             _buildThemeSelector(context, ref),
             const Gap(24),
 
             // About Section
-            _buildSectionTitle(context, 'Tentang'),
+            _buildSectionTitle(context, 'Tentang', textSecondary),
             const Gap(8),
             _buildSettingItem(
               context,
@@ -157,7 +164,7 @@ class SettingsPage extends ConsumerWidget {
                   Text(
                     'Made with ❤️ for better financial habits',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: textSecondary,
                     ),
                   ),
                 ],
@@ -432,13 +439,13 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
+  Widget _buildSectionTitle(BuildContext context, String title, Color textColor) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: AppColors.textSecondary,
+          color: textColor,
           fontWeight: FontWeight.w600,
           letterSpacing: 1,
         ),
