@@ -57,36 +57,36 @@ jobs:
           else
             echo "Warning: GOOGLE_SERVICES_JSON secret not set, using dummy config"
             cat > android/app/google-services.json << 'EOF'
-            {
-              "project_info": {
-                "project_number": "943368254932",
-                "project_id": "rupia-2544a",
-                "storage_bucket": "rupia-2544a.firebasestorage.app"
-              },
-              "client": [
-                {
-                  "client_info": {
-                    "mobilesdk_app_id": "1:943368254932:android:79cc47bc3ef3c7d5715241",
-                    "android_client_info": {
-                      "package_name": "com.firdausmntp.rupia"
-                    }
-                  },
-                  "oauth_client": [],
-                  "api_key": [
-                    {
-                      "current_key": "AIzaSyB632IW5BvZ1UoxyqyVh34o0pI5RBv_7C8"
-                    }
-                  ],
-                  "services": {
-                    "appinvite_service": {
-                      "other_platform_oauth_client": []
-                    }
+          {
+            "project_info": {
+              "project_number": "943368254932",
+              "project_id": "rupia-2544a",
+              "storage_bucket": "rupia-2544a.firebasestorage.app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:943368254932:android:79cc47bc3ef3c7d5715241",
+                  "android_client_info": {
+                    "package_name": "com.firdausmntp.rupia"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyB632IW5BvZ1UoxyqyVh34o0pI5RBv_7C8"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
                   }
                 }
-              ],
-              "configuration_version": "1"
-            }
-            EOF
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
           fi
 
       # Decode keystore for signing (if you have signing set up)
