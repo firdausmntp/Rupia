@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 
-class TransactionListItem extends StatelessWidget {
+class TransactionListItem extends ConsumerWidget {
   final TransactionModel transaction;
   final VoidCallback? onTap;
 
@@ -17,7 +19,35 @@ class TransactionListItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final textTertiary = isAmoled 
+        ? AppColors.textTertiaryAmoled 
+        : isDark 
+            ? AppColors.textTertiaryDark 
+            : AppColors.textTertiary;
+    final inputBgColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : AppColors.background;
+    
     final isExpense = transaction.type == TransactionType.expense;
     final color = isExpense ? AppColors.expense : AppColors.income;
     final sign = isExpense ? '-' : '+';
@@ -30,10 +60,10 @@ class TransactionListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-            boxShadow: [
+            border: Border.all(color: borderColor.withValues(alpha: 0.6)),
+            boxShadow: isDark ? null : [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
@@ -87,13 +117,13 @@ class TransactionListItem extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.background,
+                            color: inputBgColor,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             transaction.category.displayName,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                               fontSize: 11,
                             ),
                           ),
@@ -134,7 +164,7 @@ class TransactionListItem extends StatelessWidget {
                   Text(
                     DateFormatter.formatRelative(transaction.date),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textTertiary,
+                      color: textTertiary,
                       fontSize: 11,
                     ),
                   ),

@@ -120,6 +120,15 @@ class AnalyticsPage extends ConsumerWidget {
   }
 
   Widget _buildCategoryChart(BuildContext context, Map<String, double> data) {
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    
     final total = data.values.fold(0.0, (sum, value) => sum + value);
     final sortedEntries = data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -137,9 +146,9 @@ class AnalyticsPage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
@@ -215,15 +224,24 @@ class AnalyticsPage extends ConsumerWidget {
   }
 
   Widget _buildMoodChart(BuildContext context, Map<MoodType, double> data) {
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    
     final sortedEntries = data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
@@ -267,7 +285,7 @@ class AnalyticsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percentage,
-                    backgroundColor: AppColors.border,
+                    backgroundColor: isDark ? Colors.grey.shade800 : AppColors.border,
                     valueColor: AlwaysStoppedAnimation<Color>(mood.color),
                     minHeight: 8,
                   ),
@@ -429,26 +447,45 @@ class AnalyticsPage extends ConsumerWidget {
   }
 
   Widget _buildEmptyInsights(BuildContext context) {
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    
     return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           Icon(
             Icons.lightbulb_outline,
             size: 48,
-            color: AppColors.textSecondary.withValues(alpha:0.5),
+            color: textSecondary.withValues(alpha:0.5),
           ),
           const Gap(8),
           Text(
             'Insight akan muncul setelah ada lebih banyak transaksi',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+              color: textSecondary,
             ),
             textAlign: TextAlign.center,
           ),

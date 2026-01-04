@@ -7,6 +7,7 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/enums/category_type.dart';
 import '../../../../core/enums/mood_type.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/services/mood_suggestion_service.dart';
 import '../providers/transaction_providers.dart';
@@ -107,9 +108,21 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Transaksi' : 'Tambah Transaksi'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           onPressed: () => context.pop(),
           icon: const Icon(Icons.close),
@@ -160,12 +173,25 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildTypeToggle() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final inputBgColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : AppColors.background;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: inputBgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -210,6 +236,24 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildAmountInput() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -221,10 +265,10 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
-            boxShadow: [
+            border: Border.all(color: borderColor.withValues(alpha: 0.5)),
+            boxShadow: isDark ? null : [
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: 0.05),
                 blurRadius: 12,
@@ -238,7 +282,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                 'Rp',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: textSecondary,
                 ),
               ),
               const Gap(8),
@@ -253,7 +297,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                         ? AppColors.expense 
                         : AppColors.income,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: '0',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -261,6 +305,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                     errorBorder: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     fillColor: Colors.transparent,
+                    filled: true,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -308,6 +353,29 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildCategorySelection() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final inputBgColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : AppColors.background;
+
     final categories = _type == TransactionType.income
         ? CategoryType.values.where((c) => c.isIncomeCategory).toList()
         : CategoryType.values.where((c) => !c.isIncomeCategory).toList();
@@ -324,9 +392,9 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            border: Border.all(color: borderColor.withValues(alpha: 0.5)),
           ),
           child: Wrap(
             spacing: 8,
@@ -344,12 +412,12 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                   decoration: BoxDecoration(
                     color: isSelected 
                         ? category.color.withValues(alpha: 0.15) 
-                        : AppColors.background,
+                        : inputBgColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected 
                           ? category.color.withValues(alpha: 0.5) 
-                          : AppColors.border.withValues(alpha: 0.3),
+                          : borderColor.withValues(alpha: 0.3),
                       width: isSelected ? 1.5 : 1,
                     ),
                   ),
@@ -359,7 +427,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                       Icon(
                         category.icon, 
                         size: 18, 
-                        color: isSelected ? category.color : AppColors.textSecondary,
+                        color: isSelected ? category.color : textSecondary,
                       ),
                       const Gap(6),
                       Text(
@@ -367,7 +435,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected ? category.color : AppColors.textPrimary,
+                          color: isSelected ? category.color : null,
                         ),
                       ),
                     ],
@@ -382,6 +450,24 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildDateSelection() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -398,8 +484,8 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
             child: Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                color: cardColor,
+                border: Border.all(color: borderColor.withValues(alpha: 0.5)),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -425,13 +511,13 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                         Text(
                           _getRelativeDate(_date),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                  Icon(Icons.chevron_right_rounded, color: textSecondary),
                 ],
               ),
             ),
@@ -476,6 +562,29 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildMoodSelection() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final inputBgColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : AppColors.background;
+    
     final moodExplanation = _mood != null 
         ? MoodSuggestionService.getMoodExplanation(_mood!, _category, _type)
         : null;
@@ -517,13 +626,13 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: inputBgColor,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   'opsional',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textTertiary,
+                    color: textSecondary,
                     fontSize: 10,
                   ),
                 ),
@@ -536,9 +645,9 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            border: Border.all(color: borderColor.withValues(alpha: 0.5)),
           ),
           child: Wrap(
             spacing: 8,
@@ -553,12 +662,12 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                   decoration: BoxDecoration(
                     color: _mood == null 
                         ? AppColors.primary.withValues(alpha: 0.1) 
-                        : AppColors.background,
+                        : inputBgColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _mood == null 
                           ? AppColors.primary.withValues(alpha: 0.5) 
-                          : AppColors.border.withValues(alpha: 0.3),
+                          : borderColor.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -566,7 +675,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: _mood == null ? FontWeight.w600 : FontWeight.normal,
-                      color: _mood == null ? AppColors.primary : AppColors.textSecondary,
+                      color: _mood == null ? AppColors.primary : textSecondary,
                     ),
                   ),
                 ),
@@ -584,14 +693,14 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                           ? mood.color.withValues(alpha: 0.15) 
                           : isSuggested
                               ? mood.color.withValues(alpha: 0.08)
-                              : AppColors.background,
+                              : inputBgColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected 
                             ? mood.color.withValues(alpha: 0.5) 
                             : isSuggested
                                 ? mood.color.withValues(alpha: 0.3)
-                                : AppColors.border.withValues(alpha: 0.3),
+                                : borderColor.withValues(alpha: 0.3),
                         width: isSuggested && !isSelected ? 1.5 : 1,
                       ),
                     ),
@@ -605,7 +714,7 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                            color: isSelected ? mood.color : AppColors.textPrimary,
+                            color: isSelected ? mood.color : null,
                           ),
                         ),
                         if (isSuggested && !isSelected) ...[
@@ -651,6 +760,29 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
   }
 
   Widget _buildNoteInput() {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    final inputBgColor = isAmoled 
+        ? AppColors.surfaceAmoled 
+        : isDark 
+            ? AppColors.surfaceDark 
+            : AppColors.background;
+    final textTertiary = isAmoled 
+        ? AppColors.textTertiaryAmoled 
+        : isDark 
+            ? AppColors.textTertiaryDark 
+            : AppColors.textTertiary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -664,13 +796,13 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: inputBgColor,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 'opsional',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
+                  color: textTertiary,
                   fontSize: 10,
                 ),
               ),
@@ -685,10 +817,10 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
           decoration: InputDecoration(
             hintText: 'Tambahkan catatan...',
             filled: true,
-            fillColor: Colors.white,
+            fillColor: cardColor,
             prefixIcon: Padding(
               padding: const EdgeInsets.only(left: 16, right: 8, bottom: 48),
-              child: Icon(Icons.note_outlined, color: AppColors.textSecondary, size: 22),
+              child: Icon(Icons.note_outlined, color: textSecondary, size: 22),
             ),
             prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           ),
@@ -780,6 +912,10 @@ class _AddTransactionPageState extends ConsumerState<AddTransactionPage> {
         setState(() => _isLoading = false);
         
         if (success) {
+          // Invalidate providers to trigger immediate refresh
+          ref.invalidate(currentMonthTransactionsProvider);
+          ref.invalidate(dashboardSummaryProvider);
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(_isEditing

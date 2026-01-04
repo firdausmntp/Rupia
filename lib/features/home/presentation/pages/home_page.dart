@@ -331,7 +331,17 @@ class HomePage extends ConsumerWidget {
               transactionsAsync.when(
                 data: (transactions) {
                   if (transactions.isEmpty) {
-                    return _buildEmptyState(context);
+                    return _buildEmptyState(
+                      context,
+                      cardColor: cardColor,
+                      borderColor: isAmoled 
+                          ? AppColors.borderAmoled 
+                          : isDark 
+                              ? AppColors.borderDark 
+                              : AppColors.border,
+                      textSecondary: textSecondary,
+                      isDark: isDark,
+                    );
                   }
                   
                   final recentTransactions = transactions.take(10).toList();
@@ -377,13 +387,18 @@ class HomePage extends ConsumerWidget {
     return 'Malam';
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, {
+    required Color cardColor,
+    required Color borderColor,
+    required Color textSecondary,
+    required bool isDark,
+  }) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -405,14 +420,13 @@ class HomePage extends ConsumerWidget {
             'Belum ada transaksi',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
             ),
           ),
           const Gap(8),
           Text(
             'Tap tombol + untuk menambah\ntransaksi pertama',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: textSecondary,
             ),
             textAlign: TextAlign.center,
           ),

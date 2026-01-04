@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/enums/mood_type.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../transactions/presentation/providers/transaction_providers.dart';
 
 class MoodAnalyticsPage extends ConsumerWidget {
@@ -15,17 +16,28 @@ class MoodAnalyticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionsAsync = ref.watch(currentMonthTransactionsProvider);
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text('Mood Analytics'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: transactionsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (transactions) {
           if (transactions.isEmpty) {
-            return _buildEmptyState(context);
+            return _buildEmptyState(context, isDark, isAmoled);
           }
 
           // Calculate mood statistics
@@ -63,12 +75,18 @@ class MoodAnalyticsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, bool isDark, bool isAmoled) {
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.mood, size: 80, color: Colors.grey.shade400),
+          Icon(Icons.mood, size: 80, color: textSecondary),
           const Gap(16),
           Text(
             'Belum ada data',
@@ -78,7 +96,7 @@ class MoodAnalyticsPage extends ConsumerWidget {
           Text(
             'Mulai catat transaksi dengan mood\nuntuk melihat analisis',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: textSecondary),
           ),
         ],
       ),
@@ -166,6 +184,15 @@ class MoodAnalyticsPage extends ConsumerWidget {
       return const SizedBox();
     }
 
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+
     final sections = moodData.entries.map((entry) {
       return PieChartSectionData(
         value: entry.value.totalAmount,
@@ -183,9 +210,9 @@ class MoodAnalyticsPage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
@@ -249,25 +276,43 @@ class MoodAnalyticsPage extends ConsumerWidget {
       return const SizedBox();
     }
 
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    // ignore isAmoled for insights - amber colors work well in both dark modes
+    
+    // Theme-aware colors for insights
+    final insightsBgColor = isDark 
+        ? Colors.amber.shade900.withValues(alpha: 0.2)
+        : Colors.amber.shade50;
+    final insightsBorderColor = isDark 
+        ? Colors.amber.shade700.withValues(alpha: 0.5)
+        : Colors.amber.shade200;
+    final insightsTextColor = isDark 
+        ? Colors.amber.shade300
+        : Colors.amber.shade900;
+    final insightsIconColor = isDark 
+        ? Colors.amber.shade400
+        : Colors.amber.shade700;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: insightsBgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade200),
+        border: Border.all(color: insightsBorderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb, color: Colors.amber.shade700),
+              Icon(Icons.lightbulb, color: insightsIconColor),
               const Gap(8),
               Text(
                 'Insights',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber.shade900,
+                  color: insightsTextColor,
                 ),
               ),
             ],
@@ -278,11 +323,11 @@ class MoodAnalyticsPage extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('💡 ', style: TextStyle(color: Colors.amber.shade700)),
+                Text('💡 ', style: TextStyle(color: insightsIconColor)),
                 Expanded(
                   child: Text(
                     insight,
-                    style: TextStyle(color: Colors.amber.shade900),
+                    style: TextStyle(color: insightsTextColor),
                   ),
                 ),
               ],
@@ -300,12 +345,26 @@ class MoodAnalyticsPage extends ConsumerWidget {
     final sortedData = moodData.entries.toList()
       ..sort((a, b) => b.value.totalAmount.compareTo(a.value.totalAmount));
 
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
@@ -353,7 +412,7 @@ class MoodAnalyticsPage extends ConsumerWidget {
                             Text(
                               '${stats.count} transaksi',
                               style: TextStyle(
-                                color: AppColors.textSecondary,
+                                color: textSecondary,
                                 fontSize: 12,
                               ),
                             ),
@@ -370,7 +429,7 @@ class MoodAnalyticsPage extends ConsumerWidget {
                           Text(
                             'avg: ${CurrencyFormatter.formatCompact(stats.avgAmount)}',
                             style: TextStyle(
-                              color: AppColors.textSecondary,
+                              color: textSecondary,
                               fontSize: 11,
                             ),
                           ),
@@ -381,7 +440,7 @@ class MoodAnalyticsPage extends ConsumerWidget {
                   const Gap(8),
                   LinearProgressIndicator(
                     value: percentage,
-                    backgroundColor: Colors.grey.shade200,
+                    backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
                     valueColor: AlwaysStoppedAnimation(mood.color),
                     borderRadius: BorderRadius.circular(4),
                     minHeight: 6,
@@ -409,12 +468,35 @@ class MoodAnalyticsPage extends ConsumerWidget {
     final highest = sortedByAvg.first;
     final lowest = sortedByAvg.last;
 
+    final ref = ProviderScope.containerOf(context);
+    final isDark = ref.read(isDarkModeProvider);
+    final isAmoled = ref.read(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+
+    // Theme-aware pattern colors
+    final borosBgColor = isDark 
+        ? Colors.red.shade900.withValues(alpha: 0.3)
+        : Colors.red.shade50;
+    final borosTextColor = isDark 
+        ? Colors.red.shade300
+        : Colors.red.shade700;
+    final hematBgColor = isDark 
+        ? Colors.green.shade900.withValues(alpha: 0.3)
+        : Colors.green.shade50;
+    final hematTextColor = isDark 
+        ? Colors.green.shade300
+        : Colors.green.shade700;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
@@ -436,16 +518,16 @@ class MoodAnalyticsPage extends ConsumerWidget {
             '🔥 Paling Boros',
             highest.key,
             highest.value,
-            Colors.red.shade50,
-            Colors.red.shade700,
+            borosBgColor,
+            borosTextColor,
           ),
           const Gap(12),
           _buildPatternItem(
             '💪 Paling Hemat',
             lowest.key,
             lowest.value,
-            Colors.green.shade50,
-            Colors.green.shade700,
+            hematBgColor,
+            hematTextColor,
           ),
         ],
       ),

@@ -1,20 +1,22 @@
 // lib/features/onboarding/presentation/pages/onboarding_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/theme/theme_provider.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
   @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
+  ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -76,7 +78,27 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    
+    final backgroundColor = isAmoled 
+        ? AppColors.backgroundAmoled 
+        : isDark 
+            ? AppColors.backgroundDark 
+            : AppColors.background;
+    final dotColor = isAmoled 
+        ? Colors.grey.shade700 
+        : isDark 
+            ? Colors.grey.shade600 
+            : Colors.grey.shade300;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -103,7 +125,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   });
                 },
                 itemBuilder: (context, index) {
-                  return _buildPage(_items[index]);
+                  return _buildPage(_items[index], textSecondary);
                 },
               ),
             ),
@@ -122,7 +144,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       dotWidth: 10,
                       dotHeight: 10,
                       activeDotColor: AppColors.primary,
-                      dotColor: Colors.grey.shade300,
+                      dotColor: dotColor,
                     ),
                   ),
                   
@@ -165,7 +187,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildPage(OnboardingItem item) {
+  Widget _buildPage(OnboardingItem item, Color textSecondary) {
     return Padding(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -201,7 +223,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           Text(
             item.description,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.textSecondary,
+              color: textSecondary,
             ),
             textAlign: TextAlign.center,
           ),

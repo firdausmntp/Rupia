@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter" alt="Flutter"/>
-  <img src="https://img.shields.io/badge/Dart-3.0+-0175C2?logo=dart" alt="Dart"/>
+  <img src="https://img.shields.io/badge/Flutter-3.32.2+-02569B?logo=flutter" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Dart-3.8.1+-0175C2?logo=dart" alt="Dart"/>
   <img src="https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?logo=firebase" alt="Firebase"/>
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License"/>
 </p>
@@ -90,8 +90,8 @@
 
 | Kategori | Teknologi |
 |----------|-----------|
-| **Framework** | Flutter 3.8+ |
-| **Language** | Dart 3.0+ |
+| **Framework** | Flutter 3.32.2+ |
+| **Language** | Dart 3.8.1+ |
 | **State Management** | Riverpod |
 | **Local Database** | SQLite (sqflite) |
 | **Authentication** | Firebase Auth + Google Sign-In |
@@ -107,10 +107,11 @@
 
 ### Prerequisites
 
-- Flutter SDK 3.8 atau lebih baru
+- Flutter SDK 3.32.2 atau lebih baru (Dart SDK ^3.8.1)
 - Android Studio / VS Code
 - Akun Firebase (untuk fitur cloud)
 - Device Android/iOS atau Emulator
+- Java JDK 17+ (untuk build Android)
 
 ### Installation
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/theme/theme_provider.dart';
 
-class SummaryCard extends StatelessWidget {
+class SummaryCard extends ConsumerWidget {
   final String title;
   final double amount;
   final IconData icon;
@@ -18,14 +20,32 @@ class SummaryCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(isDarkModeProvider);
+    final isAmoled = ref.watch(isAmoledModeProvider);
+    final cardColor = isAmoled 
+        ? AppColors.cardBackgroundAmoled 
+        : isDark 
+            ? AppColors.cardBackgroundDark 
+            : Colors.white;
+    final borderColor = isAmoled 
+        ? AppColors.borderAmoled 
+        : isDark 
+            ? AppColors.borderDark 
+            : AppColors.border;
+    final textSecondary = isAmoled 
+        ? AppColors.textSecondaryAmoled 
+        : isDark 
+            ? AppColors.textSecondaryDark 
+            : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
-        boxShadow: [
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
+        boxShadow: isDark ? null : [
           BoxShadow(
             color: color.withValues(alpha: 0.08),
             blurRadius: 16,
@@ -58,7 +78,7 @@ class SummaryCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
